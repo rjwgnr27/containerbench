@@ -31,5 +31,5 @@ static void BM_lookup(benchmark::State& state)
             lookup(key);
 }
 
-BENCHMARK(BM_lookup)->RangeMultiplier(2)->Range(4, 4096)->Setup(BM_setup);
+BENCHMARK(BM_lookup)->RangeMultiplier(2)->Range(1, 4096)->Setup(BM_setup);
 BENCHMARK_MAIN();

@@ -14,7 +14,7 @@ void initializeLookup(std::vector<uint64_t> const& fill)
         lookupTable.emplace_back(key, reinterpret_cast<void*>(lookupTable.size()));
 }
 
-void *lookup(uint64_t key)
+void *lookup([[maybe_unused]] uint64_t key)
 {
     return nullptr;
 }
