@@ -1,18 +1,19 @@
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
-#include <stdexcept>
 #include <map>
 
 static std::map<uint64_t, void*> lookupTable;
 
-void initializeLookup(std::vector<uint64_t> const& fill)
+void mapInitializeLookup(std::vector<uint64_t> const& fill, size_t count)
 {
     lookupTable.clear();
-    for (auto key : fill)
-        lookupTable.emplace(key, reinterpret_cast<void*>(lookupTable.size()));
+    const auto toCopy = std::min(count, fill.size());
+    for (auto begin = fill.begin(), end = begin + toCopy; begin != end; ++begin)
+        lookupTable.emplace(*begin, reinterpret_cast<void*>(lookupTable.size()));
 }
 
-void *lookup(uint64_t key)
+void *mapLookup(uint64_t key)
 {
     auto const it = lookupTable.find(key);
     return it == lookupTable.end() ? nullptr : it->second;
