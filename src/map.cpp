@@ -5,7 +5,7 @@
 
 static std::map<uint64_t, void*> lookupTable;
 
-void mapInitializeLookup(std::vector<uint64_t> const& fill, size_t count)
+void mapInitialize(std::vector<uint64_t> const& fill, size_t count)
 {
     lookupTable.clear();
     const auto toCopy = std::min(count, fill.size());

@@ -6,7 +6,7 @@
 using entryType = std::pair<uint64_t, void*>;
 static std::vector<entryType> lookupTable;
 
-void noOpVecInitializeLookup(std::vector<uint64_t> const& fill, size_t count)
+void noOpVecInitialize(std::vector<uint64_t> const& fill, size_t count)
 {
     const auto toCopy = std::min(count, fill.size());
     if (lookupTable.size() != toCopy) {

@@ -5,7 +5,7 @@
 
 static std::unordered_map<uint64_t, void*> lookupTable;
 
-void unorderedMapInitializeLookup(std::vector<uint64_t> const& fill, size_t count)
+void unorderedMapInitialize(std::vector<uint64_t> const& fill, size_t count)
 {
     lookupTable.clear();
     const auto toCopy = std::min(count, fill.size());

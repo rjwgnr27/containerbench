@@ -7,7 +7,7 @@
 using entryType = std::pair<uint64_t, void*>;
 static std::vector<entryType> lookupTable;
 
-void sortedVecInitializeLookup(std::vector<uint64_t> const& fill, size_t count)
+void sortedVecInitialize(std::vector<uint64_t> const& fill, size_t count)
 {
     lookupTable.clear();
     const auto toCopy = std::min(count, fill.size());
