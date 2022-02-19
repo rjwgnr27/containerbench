@@ -11,6 +11,12 @@
 
 static constexpr int MaxKeys = 4096;
 
+#if defined(THREADS)
+static constexpr int threads = THREADS;
+#else
+static constexpr int threads = 1;
+#endif
+
 static std::vector<uint64_t> createKeys()
 {
     std::vector<uint64_t> keys(MaxKeys);
@@ -121,8 +127,8 @@ static void BM_lookup_unsortedSharedVec(benchmark::State& state)
 
 BENCHMARK(BM_lookup_noOpVec)->Name("No-op")->Setup(BM_setup_noOpVec)->RangeMultiplier(2)->Range(1, MaxKeys);
 BENCHMARK(BM_lookup_unsortedVec)->Name("Unsorted Vector")->Setup(BM_setup_unsortedVec)->RangeMultiplier(2)->Range(1, MaxKeys);
-BENCHMARK(BM_lookup_unsortedMutexVec)->Name("Vector w/Mutex")->ThreadRange(1,4)->Setup(BM_setup_unsortedMutexVec)->RangeMultiplier(2)->Range(1, MaxKeys);
-BENCHMARK(BM_lookup_unsortedSharedVec)->Name("Vector shared read")->ThreadRange(1,4)->Setup(BM_setup_unsortedSharedVec)->RangeMultiplier(2)->Range(1, MaxKeys);
+BENCHMARK(BM_lookup_unsortedMutexVec)->Name("Vector w/Mutex")->ThreadRange(1,threads)->Setup(BM_setup_unsortedMutexVec)->RangeMultiplier(2)->Range(1, MaxKeys);
+BENCHMARK(BM_lookup_unsortedSharedVec)->Name("Vector shared read")->ThreadRange(1,threads)->Setup(BM_setup_unsortedSharedVec)->RangeMultiplier(2)->Range(1, MaxKeys);
 BENCHMARK(BM_lookup_sortedVec)->Name("Sorted Vector")->Setup(BM_setup_sortedVec)->RangeMultiplier(2)->Range(1, MaxKeys);
 BENCHMARK(BM_lookup_map)->Name("Map")->Setup(BM_setup_map)->RangeMultiplier(2)->Range(1, MaxKeys);
 BENCHMARK(BM_lookup_unordedMap)->Name("Unordered Map")->Setup(BM_setup_unordedMap)->RangeMultiplier(2)->Range(1, MaxKeys);
