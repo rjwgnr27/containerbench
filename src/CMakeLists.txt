@@ -7,5 +7,7 @@ add_executable(containerbench main.cpp
     sortedVec.cpp
     unorderedMap.cpp
     unsortedVec.cpp
+    unsortedMutexVec.cpp
+    unsortedSharedVec.cpp
 )
 target_link_libraries(containerbench PRIVATE benchmark::benchmark)

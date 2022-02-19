@@ -91,9 +91,40 @@ static void BM_lookup_unordedMap(benchmark::State& state)
             unordedMapLookup(key);
 }
 
-BENCHMARK(BM_lookup_noOpVec)->Setup(BM_setup_noOpVec)->RangeMultiplier(2)->Range(1, MaxKeys);
-BENCHMARK(BM_lookup_unsortedVec)->Setup(BM_setup_unsortedVec)->RangeMultiplier(2)->Range(1, MaxKeys);
-BENCHMARK(BM_lookup_sortedVec)->Setup(BM_setup_sortedVec)->RangeMultiplier(2)->Range(1, MaxKeys);
-BENCHMARK(BM_lookup_map)->Setup(BM_setup_map)->RangeMultiplier(2)->Range(1, MaxKeys);
-BENCHMARK(BM_lookup_unordedMap)->Setup(BM_setup_unordedMap)->RangeMultiplier(2)->Range(1, MaxKeys);
+void unsortedMutexVecInitializeLookup(std::vector<uint64_t> const& fill, size_t count);
+void unsortedMutexVecLookup(uint64_t key);
+static void BM_setup_unsortedMutexVec(benchmark::State const& state)
+{
+   unsortedMutexVecInitializeLookup(keys, state.range(0));
+}
+
+static void BM_lookup_unsortedMutexVec(benchmark::State& state)
+{
+    for(auto _ : state)
+        for(auto key : keys)
+            unsortedMutexVecLookup(key);
+}
+
+void unsortedSharedVecInitializeLookup(std::vector<uint64_t> const& fill, size_t count);
+void unsortedSharedVecLookup(uint64_t key);
+static void BM_setup_unsortedSharedVec(benchmark::State const& state)
+{
+   unsortedSharedVecInitializeLookup(keys, state.range(0));
+}
+
+static void BM_lookup_unsortedSharedVec(benchmark::State& state)
+{
+    for(auto _ : state)
+        for(auto key : keys)
+            unsortedSharedVecLookup(key);
+}
+
+BENCHMARK(BM_lookup_noOpVec)->Name("No-op")->Setup(BM_setup_noOpVec)->RangeMultiplier(2)->Range(1, MaxKeys);
+BENCHMARK(BM_lookup_unsortedVec)->Name("Unsorted Vector")->Setup(BM_setup_unsortedVec)->RangeMultiplier(2)->Range(1, MaxKeys);
+BENCHMARK(BM_lookup_unsortedMutexVec)->Name("Vector w/Mutex")->ThreadRange(1,4)->Setup(BM_setup_unsortedMutexVec)->RangeMultiplier(2)->Range(1, MaxKeys);
+BENCHMARK(BM_lookup_unsortedSharedVec)->Name("Vector shared read")->ThreadRange(1,4)->Setup(BM_setup_unsortedSharedVec)->RangeMultiplier(2)->Range(1, MaxKeys);
+BENCHMARK(BM_lookup_sortedVec)->Name("Sorted Vector")->Setup(BM_setup_sortedVec)->RangeMultiplier(2)->Range(1, MaxKeys);
+BENCHMARK(BM_lookup_map)->Name("Map")->Setup(BM_setup_map)->RangeMultiplier(2)->Range(1, MaxKeys);
+BENCHMARK(BM_lookup_unordedMap)->Name("Unordered Map")->Setup(BM_setup_unordedMap)->RangeMultiplier(2)->Range(1, MaxKeys);
+
 BENCHMARK_MAIN();
