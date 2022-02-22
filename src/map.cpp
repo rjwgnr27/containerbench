@@ -3,17 +3,18 @@
 #include <cstdint>
 #include <map>
 
-static std::map<uint64_t, void*> lookupTable;
+using keyType = uint64_t;
+static std::map<keyType, void*> lookupTable;
 
-void mapInitialize(std::vector<uint64_t> const& fill, size_t count)
+void mapInitialize(std::vector<keyType> const& fill, size_t count)
 {
     lookupTable.clear();
     const auto toCopy = std::min(count, fill.size());
-    for (auto begin = fill.begin(), end = begin + toCopy; begin != end; ++begin)
-        lookupTable.emplace(*begin, reinterpret_cast<void*>(lookupTable.size()));
+    std::for_each(fill.begin(), fill.begin() + toCopy,
+                  [](auto key){lookupTable.insert_or_assign(key, reinterpret_cast<void*>(lookupTable.size()));});
 }
 
-void *mapLookup(uint64_t key)
+void *mapLookup(keyType key)
 {
     auto const it = lookupTable.find(key);
     return it == lookupTable.end() ? nullptr : it->second;

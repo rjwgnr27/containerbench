@@ -3,18 +3,19 @@
 #include <cstdint>
 #include <unordered_map>
 
-static std::unordered_map<uint64_t, void*> lookupTable;
+using keyType = uint64_t;
+static std::unordered_map<keyType, void*> lookupTable;
 
-void unorderedMapInitialize(std::vector<uint64_t> const& fill, size_t count)
+void unorderedMapInitialize(std::vector<keyType> const& fill, size_t count)
 {
     lookupTable.clear();
     const auto toCopy = std::min(count, fill.size());
     lookupTable.reserve(toCopy);
-    for (auto begin = fill.begin(), end = begin + toCopy; begin != end; ++begin)
-        lookupTable.emplace(*begin, reinterpret_cast<void*>(lookupTable.size()));
+    std::for_each(fill.begin(), fill.begin() + toCopy,
+                  [](auto key){lookupTable.insert_or_assign(key, reinterpret_cast<void*>(lookupTable.size()));});
 }
 
-void *unordedMapLookup(uint64_t key)
+void *unordedMapLookup(keyType key)
 {
     auto const it = lookupTable.find(key);
     return it == lookupTable.end() ? nullptr : it->second;

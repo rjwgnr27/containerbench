@@ -1,15 +1,23 @@
-#include <cstdint>
-#include <getopt.h>
-#include <iomanip>
-#include <iostream>
-#include <memory>
-#include <stdexcept>
-#include <string>
+#include <random>
+#include <ranges>
 #include <vector>
 
 #include <benchmark/benchmark.h>
 
+namespace rng = std::ranges;
+
+/** max number of keys in the lookup algorithm table; this is the target test */
 static constexpr int MaxKeys = 4096;
+
+/** number of test keys to look up; this many keys will be filled from a repeating
+ * sub-range, each sub-range the length of the target test size
+ */
+static constexpr int Lookups = 8192;
+
+using keyType = uint64_t;
+
+static std::random_device rd;
+static std::mt19937 gen{rd()};
 
 #if defined(THREADS)
 static constexpr int threads = THREADS;
@@ -17,52 +25,67 @@ static constexpr int threads = THREADS;
 static constexpr int threads = 1;
 #endif
 
-static std::vector<uint64_t> createKeys()
+static std::vector<keyType> createKeys()
 {
-    std::vector<uint64_t> keys(MaxKeys);
-    std::generate(begin(keys), end(keys), [](){return static_cast<uint64_t>(rand());});
+    std::vector<keyType> keys(MaxKeys);
+    rng::generate(keys, [value=gen()]() mutable {return value += gen() % 65535;});
+    rng::shuffle(keys, gen);
     return keys;
 }
 
-static std::vector<uint64_t> keys = createKeys();
+/** table of max number of unique, randomized keys. Test lookups will be repeating
+ * sub-ranges from this list */
+static std::vector<keyType> allKeys = createKeys();
 
-using setupFn = void (*)(std::vector<uint64_t> const& fill, size_t count);
+/** set of test keys to lookup
+ *
+ * Each test will use an equal number of total look-ups from varying length
+ * repeated sub-sets from @c allKeys */
+static std::vector<keyType> lookupKeys(Lookups);
+
+/** call target setup function, to set up target key/value table, with the
+ * test iteration specific table size */
+using setupFn = void (*)(std::vector<keyType> const& fill, size_t count);
 template <setupFn SETUP>
 static void setup(benchmark::State const& state)
 {
-    SETUP(keys, state.range(0));
+    auto keyCount = state.range(0);         // number of keys in target lookup table
+    SETUP(allKeys, keyCount);
+    std::copy(allKeys.begin(), allKeys.begin() + keyCount, lookupKeys.begin());
+    std::copy(lookupKeys.begin(), lookupKeys.end() - keyCount, lookupKeys.begin() + keyCount);
 }
 
 
-using lookupFn = void* (*)(uint64_t);
+/** call target lookup function with a fixed number of lookups, on an iteration
+ * specific sized sub-set of keys */
+using lookupFn = void* (*)(keyType);
 template <lookupFn LOOKUP>
 static void lookup(benchmark::State& state)
 {
     for(auto _ : state)
-        for(auto key : keys)
-            LOOKUP(key);
+        rng::for_each(lookupKeys, LOOKUP);
 }
 
-void noOpVecInitialize(std::vector<uint64_t> const& fill, size_t count);
-void *noOpVecLookup(uint64_t key);
+void noOpVecInitialize(std::vector<keyType> const& fill, size_t count);
+void *noOpVecLookup(keyType key);
 
-void unsortedVecInitialize(std::vector<uint64_t> const& fill, size_t count);
-void *unsortedVecLookup(uint64_t key);
+void unsortedVecInitialize(std::vector<keyType> const& fill, size_t count);
+void *unsortedVecLookup(keyType key);
 
-void sortedVecInitialize(std::vector<uint64_t> const& fill, size_t count);
-void *sortedVecLookup(uint64_t key);
+void sortedVecInitialize(std::vector<keyType> const& fill, size_t count);
+void *sortedVecLookup(keyType key);
 
-void mapInitialize(std::vector<uint64_t> const& fill, size_t count);
-void *mapLookup(uint64_t key);
+void mapInitialize(std::vector<keyType> const& fill, size_t count);
+void *mapLookup(keyType key);
 
-void unorderedMapInitialize(std::vector<uint64_t> const& fill, size_t count);
-void *unordedMapLookup(uint64_t key);
+void unorderedMapInitialize(std::vector<keyType> const& fill, size_t count);
+void *unordedMapLookup(keyType key);
 
-void unsortedMutexVecInitialize(std::vector<uint64_t> const& fill, size_t count);
-void *unsortedMutexVecLookup(uint64_t key);
+void unsortedMutexVecInitialize(std::vector<keyType> const& fill, size_t count);
+void *unsortedMutexVecLookup(keyType key);
 
-void unsortedSharedVecInitialize(std::vector<uint64_t> const& fill, size_t count);
-void *unsortedSharedVecLookup(uint64_t key);
+void unsortedSharedVecInitialize(std::vector<keyType> const& fill, size_t count);
+void *unsortedSharedVecLookup(keyType key);
 
 BENCHMARK(lookup<noOpVecLookup>)
     ->Name("No-op")
@@ -73,20 +96,20 @@ BENCHMARK(lookup<noOpVecLookup>)
 
 BENCHMARK(lookup<unsortedVecLookup>)
     ->Name("Unsorted Vector")
-    ->Threads(1)
+    ->ThreadRange(1,threads)
     ->Setup(setup<unsortedVecInitialize>)
     ->RangeMultiplier(2)
     ->Range(1, MaxKeys);
 
 BENCHMARK(lookup<unsortedMutexVecLookup>)
-    ->Name("Vector w/Mutex")
+    ->Name("Unsorted Vector w/Mutex")
     ->ThreadRange(1,threads)
     ->Setup(setup<unsortedMutexVecInitialize>)
     ->RangeMultiplier(2)
     ->Range(1, MaxKeys);
 
 BENCHMARK(lookup<unsortedSharedVecLookup>)
-    ->Name("Vector shared read")
+    ->Name("Vector Shared Read")
     ->ThreadRange(1,threads)
     ->Setup(setup<unsortedSharedVecInitialize>)
     ->RangeMultiplier(2)

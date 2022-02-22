@@ -1,23 +1,16 @@
-#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <vector>
 
-using entryType = std::pair<uint64_t, void*>;
-static std::vector<entryType> lookupTable;
+using keyType = uint64_t;
 
-void noOpVecInitialize(std::vector<uint64_t> const& fill, size_t count)
+using entryType = std::pair<keyType, void*>;
+
+void noOpVecInitialize([[maybe_unused]] std::vector<keyType> const& fill, [[maybe_unused]] size_t count)
 {
-    const auto toCopy = std::min(count, fill.size());
-    if (lookupTable.size() != toCopy) {
-        lookupTable.clear();
-        lookupTable.reserve(toCopy);
-        for (auto begin = fill.begin(), end = begin + toCopy; begin != end; ++begin)
-            lookupTable.emplace_back(*begin, reinterpret_cast<void*>(lookupTable.size()));
-    }
 }
 
-void *noOpVecLookup([[maybe_unused]] uint64_t key)
+void *noOpVecLookup([[maybe_unused]] keyType key)
 {
     return nullptr;
 }

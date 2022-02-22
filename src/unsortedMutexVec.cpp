@@ -4,24 +4,24 @@
 #include <mutex>
 #include <vector>
 
-using entryType = std::pair<uint64_t, void*>;
+using keyType = uint64_t;
+using entryType = std::pair<keyType, void*>;
 static std::vector<entryType> lookupTable;
 static std::mutex tableMutex;
 
-void unsortedMutexVecInitialize(std::vector<uint64_t> const& fill, size_t count)
+void unsortedMutexVecInitialize(std::vector<keyType> const& fill, size_t count)
 {
     std::lock_guard lock(tableMutex);
-    lookupTable.clear();
     const auto toCopy = std::min(count, fill.size());
-    lookupTable.reserve(toCopy);
-    for (auto begin = fill.begin(), end = begin + toCopy; begin != end; ++begin)
-        lookupTable.emplace_back(*begin, reinterpret_cast<void*>(lookupTable.size()));
+    lookupTable.resize(toCopy);
+    std::transform(fill.begin(), fill.begin() + toCopy, lookupTable.begin(),
+                   [](keyType key){return entryType{key, nullptr};});
 }
 
-void *unsortedMutexVecLookup(uint64_t key)
+void *unsortedMutexVecLookup(keyType key)
 {
-    auto compare = [=] (entryType const& entry) {return entry.first == key;};
+    auto compare = [] (entryType const& lhs, entryType const& rhs) {return lhs.first < rhs.first;};
     std::lock_guard lock(tableMutex);
-    auto const it = std::find_if(lookupTable.cbegin(), lookupTable.cend(), compare);
-    return it == lookupTable.cend() ? nullptr : it->second;
+    auto const it = std::ranges::lower_bound(lookupTable, entryType{key, nullptr}, compare);
+    return it == lookupTable.end() ? nullptr : (it->first == key ? it->second : nullptr);
 }
