@@ -49,10 +49,11 @@ using setupFn = void (*)(std::vector<keyType> const& fill, size_t count);
 template <setupFn SETUP>
 static void setup(benchmark::State const& state)
 {
-    auto keyCount = state.range(0);         // number of keys in target lookup table
+    auto const keyCount = state.range(0);         // number of keys in target lookup table
     SETUP(allKeys, keyCount);
-    std::copy(allKeys.begin(), allKeys.begin() + keyCount, lookupKeys.begin());
-    std::copy(lookupKeys.begin(), lookupKeys.end() - keyCount, lookupKeys.begin() + keyCount);
+    auto dest = std::copy_n(allKeys.cbegin(), keyCount, lookupKeys.begin());
+    std::for_each(lookupKeys.cbegin(), lookupKeys.cend() - keyCount,
+                  [&dest](auto i) mutable {*(dest++) = i;});
 }
 
 
