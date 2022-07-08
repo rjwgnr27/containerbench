@@ -2,7 +2,7 @@ find_package(benchmark REQUIRED)
 include(ProcessorCount)
 ProcessorCount(NPROC)
 
-add_compile_options(-O3 --std=c++20 -march=native -Wall -Werror -Wextra -Wpedantic)
+add_compile_options(-march=native -Wall -Werror -Wextra -Wpedantic)
 add_executable(containerbench main.cpp
     map.cpp
     noOpVec.cpp
@@ -12,7 +12,9 @@ add_executable(containerbench main.cpp
     unsortedMutexVec.cpp
     unsortedSharedVec.cpp
 )
+
 if(NOT NPROC EQUAL 0)
     target_compile_definitions(containerbench PUBLIC -DTHREADS=${NPROC})
 endif()
+
 target_link_libraries(containerbench PRIVATE benchmark::benchmark)
