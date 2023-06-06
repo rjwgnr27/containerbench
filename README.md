@@ -11,13 +11,20 @@ make and change to build directory:
 - cmake [CONFIGURE OPTIONS] ..
 ```
 
-#### CONFIGURE_OPTIONS:
+### CONFIGURE_OPTIONS:
 ```
   -DCMAKE_BUILD_TYPE=[Debug|RelWithDebInfo|Release]
 ```
-#### Build the image:
+### Build the image:
 ```
 - cmake --build [BUILD_OPTIONS] .
+```
+
+#### BUILD_OPTIONS
+```
+  --clean-first       : Clean previous build
+  --parallel N        : Use N concurrent threads
+  --verbose           : Show the make commands
 ```
 
 The executable will be built into the "src" subdirectory. Execute the tests:
