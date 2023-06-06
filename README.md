@@ -3,8 +3,10 @@ Benchmark, using Google/benchmark, performance of lookups in small data sets usi
 
 ## Building:
 make and change to build directory:
-- mkdir build
-- cd build
+```
+mkdir build
+cd build
+```
 
 ### Configure build:
 ```
@@ -28,4 +30,6 @@ make and change to build directory:
 ```
 
 The executable will be built into the "src" subdirectory. Execute the tests:
-- ./src/containerbench [--help]
+```
+./src/containerbench [--help]
+```
