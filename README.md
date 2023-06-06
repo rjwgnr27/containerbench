@@ -17,7 +17,7 @@ make and change to build directory:
 ```
 ### Build the image:
 ```
-- cmake --build [BUILD_OPTIONS] .
+- cmake --build . [BUILD_OPTIONS]
 ```
 
 #### BUILD_OPTIONS
