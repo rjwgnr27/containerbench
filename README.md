@@ -10,10 +10,11 @@ cd build
 
 ### Configure build:
 ```
-- cmake [CONFIGURE OPTIONS] ..
+cmake [CONFIGURE OPTIONS] ..
 ```
 
 ### CONFIGURE_OPTIONS:
+The following options are available for the configuration step:
 ```
   -DCMAKE_BUILD_TYPE=[Debug|RelWithDebInfo|Release]
 ```
