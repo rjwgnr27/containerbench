@@ -6,11 +6,19 @@ make and change to build directory:
 - mkdir build
 - cd build
 
-Configure build:
-- cmake [CMAKE OPTIONS] ..
+### Configure build:
+```
+- cmake [CONFIGURE OPTIONS] ..
+```
 
-Build the image:
-- cmake --build .
+#### CONFIGURE_OPTIONS:
+```
+  -DCMAKE_BUILD_TYPE=[Debug|RelWithDebInfo|Release]
+```
+#### Build the image:
+```
+- cmake --build [BUILD_OPTIONS] .
+```
 
 The executable will be built into the "src" subdirectory. Execute the tests:
 - ./src/containerbench [--help]
