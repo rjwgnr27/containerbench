@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <ranges>
 #include <vector>
 
 using keyType = uint64_t;
@@ -19,7 +18,7 @@ void unsortedVecInitialize(std::vector<keyType> const& fill, size_t count)
 
 void *unsortedVecLookup(keyType key)
 {
-    auto const it = std::ranges::find_if(lookupTable,
+    auto const it = std::find_if(lookupTable.cbegin(), lookupTable.cend(),
                 [=] (entryType const& entry) {return entry.first == key;});
-    return it == lookupTable.end() ? nullptr : it->second;
+    return it == lookupTable.cend() ? nullptr : it->second;
 }

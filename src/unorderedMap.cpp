@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <unordered_map>
+#include <vector>
 
 using keyType = uint64_t;
 static std::unordered_map<keyType, void*> lookupTable;
@@ -12,7 +13,7 @@ void unorderedMapInitialize(std::vector<keyType> const& fill, size_t count)
     const auto toCopy = std::min(count, fill.size());
     lookupTable.reserve(toCopy);
     std::for_each(fill.begin(), fill.begin() + toCopy,
-                  [](auto key){lookupTable.insert_or_assign(key, reinterpret_cast<void*>(lookupTable.size()));});
+                  [](auto key){lookupTable[key] = reinterpret_cast<void*>(lookupTable.size());});
 }
 
 void *unordedMapLookup(keyType key)

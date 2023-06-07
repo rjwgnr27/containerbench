@@ -1,10 +1,7 @@
 #include <random>
-#include <ranges>
 #include <vector>
 
 #include <benchmark/benchmark.h>
-
-namespace rng = std::ranges;
 
 /** max number of keys in the lookup algorithm table; this is the target test */
 static constexpr int MaxKeys = 4096;
@@ -28,8 +25,8 @@ static constexpr int threads = 1;
 static std::vector<keyType> createKeys()
 {
     std::vector<keyType> keys(MaxKeys);
-    rng::generate(keys, [value=gen()]() mutable {return value += gen() % 65535;});
-    rng::shuffle(keys, gen);
+    std::generate(keys.begin(), keys.end(), [value=gen()]() mutable {return value += gen() % 65535;});
+    std::shuffle(keys.begin(), keys.end(), gen);
     return keys;
 }
 
@@ -64,7 +61,7 @@ template <lookupFn LOOKUP>
 static void lookup(benchmark::State& state)
 {
     for(auto _ : state)
-        rng::for_each(lookupKeys, LOOKUP);
+        std::for_each(lookupKeys.begin(), lookupKeys.end(), LOOKUP);
 }
 
 void noOpVecInitialize(std::vector<keyType> const& fill, size_t count);
