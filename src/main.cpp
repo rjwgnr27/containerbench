@@ -50,7 +50,7 @@ static void setup(benchmark::State const& state)
     SETUP(allKeys, keyCount);
     auto dest = std::copy_n(allKeys.cbegin(), keyCount, lookupKeys.begin());
     std::for_each(lookupKeys.cbegin(), lookupKeys.cend() - keyCount,
-                  [&dest](auto i) mutable {*(dest++) = i;});
+                  [&dest](keyType const i) mutable {*(dest++) = i;});
 }
 
 

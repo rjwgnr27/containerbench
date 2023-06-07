@@ -13,7 +13,7 @@ void unorderedMapInitialize(std::vector<keyType> const& fill, size_t count)
     const auto toCopy = std::min(count, fill.size());
     lookupTable.reserve(toCopy);
     std::for_each(fill.begin(), fill.begin() + toCopy,
-                  [](auto key){lookupTable[key] = reinterpret_cast<void*>(lookupTable.size());});
+                  [](keyType key){lookupTable[key] = reinterpret_cast<void*>(lookupTable.size());});
 }
 
 void *unordedMapLookup(keyType key)
